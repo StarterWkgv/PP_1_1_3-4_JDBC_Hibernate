@@ -14,10 +14,8 @@ public class Util {
 
     }
 
-    public static Connection getConnection_JDBC() throws SQLException, ClassNotFoundException {
-
-        Class.forName("com.mysql.jdbc.Driver");
-        return DriverManager.getConnection(String.format("jdbc:mysql://%s:3306/%s", hostName, dbName),
-                userName, password);
+    public static Connection getConnectionJDBC() throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        return DriverManager.getConnection(String.format("jdbc:mysql://%s:3306/%s", hostName, dbName), userName, password);
     }
 }
