@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private Connection connection;
+    private final Connection connection;
 
     {
         try {
             connection = Util.getConnectionJDBC();
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -23,48 +23,42 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try {
-            PreparedStatement pr = connection.prepareStatement("""
-                    create table users (
-                        id bigint not null auto_increment primary key ,
-                        name varchar(30) not null,
-                        lastname varchar(30) not null,
-                        age tinyint not null
-                    )""");
+        try (PreparedStatement pr = connection.prepareStatement("""
+                create table if not exists users (
+                    id bigint not null auto_increment primary key ,
+                    name varchar(30) not null,
+                    lastname varchar(30) not null,
+                    age tinyint not null
+                )""")) {
             pr.executeUpdate();
-        } catch (SQLException ignored) {
-
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
-
     }
 
     public void dropUsersTable() {
-        try {
-            PreparedStatement pr = connection.prepareStatement("drop table users");
+        try (PreparedStatement pr = connection.prepareStatement("drop table if exists users")) {
             pr.executeUpdate();
-        } catch (SQLException ignored) {
-
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try {
-            PreparedStatement ps = connection.prepareStatement("insert into users (name, lastname, age) values (?, ?, ?)");
-            ps.setString(1, name);
-            ps.setString(2, lastName);
-            ps.setByte(3, age);
-            ps.executeUpdate();
+        try (PreparedStatement pr = connection.prepareStatement("insert into users (name, lastname, age) values (?, ?, ?)")) {
+            pr.setString(1, name);
+            pr.setString(2, lastName);
+            pr.setByte(3, age);
+            pr.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void removeUserById(long id) {
-        try {
-            PreparedStatement ps = connection.prepareStatement("delete from users where id = ?");
-            ps.setLong(1, id);
-            ps.executeUpdate();
+        try (PreparedStatement pr = connection.prepareStatement("delete from users where id = ?")) {
+            pr.setLong(1, id);
+            pr.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -72,10 +66,8 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> list = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            String sql = "select * from users";
-            ResultSet rs = statement.executeQuery(sql);
+        try (Statement statement = connection.createStatement()) {
+            ResultSet rs = statement.executeQuery("select * from users");
             while (rs.next()) {
                 User user = new User(rs.getString("name"), rs.getString("lastname"), rs.getByte("age"));
                 user.setId(rs.getLong("id"));
@@ -84,17 +76,14 @@ public class UserDaoJDBCImpl implements UserDao {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
         return list;
     }
 
     public void cleanUsersTable() {
-        try {
-            PreparedStatement ps = connection.prepareStatement("truncate table users");
-            ps.executeUpdate();
+        try (PreparedStatement pr = connection.prepareStatement("truncate table users")) {
+            pr.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
     }
 }
