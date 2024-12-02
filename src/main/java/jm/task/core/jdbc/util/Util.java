@@ -16,15 +16,18 @@ public class Util {
 
     }
 
-    public static Connection getConnectionJDBC() throws SQLException, ClassNotFoundException {
-        Class.forName(DRIVER);
-        if (connection == null) {
-            connection = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306/%s", HOSTNAME, DBNAME),
-                    USERNAME, PASSWORD);
-            return connection;
-        } else {
-            return connection;
+    public static Connection getConnectionJDBC() {
+        try {
+            Class.forName(DRIVER);
+            if (connection == null) {
+                connection = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306/%s", HOSTNAME, DBNAME),
+                        USERNAME, PASSWORD);
+            }
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
         }
+        return connection;
+
     }
 
     public static void closeConnectionJDBC() {
@@ -32,7 +35,7 @@ public class Util {
             try {
                 connection.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
     }

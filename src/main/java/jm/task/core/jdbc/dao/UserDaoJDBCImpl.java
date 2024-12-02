@@ -8,15 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
-    private final Connection connection;
-
-    {
-        try {
-            connection = Util.getConnectionJDBC();
-        } catch (SQLException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final Connection connection = Util.getConnectionJDBC();
 
     public UserDaoJDBCImpl() {
 
@@ -32,7 +24,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 )""")) {
             pr.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -40,7 +32,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (PreparedStatement pr = connection.prepareStatement("drop table if exists users")) {
             pr.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -51,7 +43,7 @@ public class UserDaoJDBCImpl implements UserDao {
             pr.setByte(3, age);
             pr.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -60,7 +52,7 @@ public class UserDaoJDBCImpl implements UserDao {
             pr.setLong(1, id);
             pr.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -74,7 +66,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 list.add(user);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return list;
     }
@@ -83,7 +75,7 @@ public class UserDaoJDBCImpl implements UserDao {
         try (PreparedStatement pr = connection.prepareStatement("truncate table users")) {
             pr.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
